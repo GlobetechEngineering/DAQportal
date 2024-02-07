@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>{% block title %}{% endblock %}</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+	<header>
+	<nav>
+		<ul>
+			<li><a href="{{ url_for('home') }}">Home</a></li>
+			<li><a href="{{ url_for('list_files') }}">Logs</a></li>
+			<li><a href="{{ url_for('config_list') }}">Configuration</a></li>
+			<li><a href="{{ url_for('status') }}">Status</a></li>
+		</ul>
+	</nav>
+	</header>
+	<main><h1>{{ self.title() }}</h1>
+	{% block content %}{% endblock %}</main>
+	<footer></footer>
+</body>
+</html>

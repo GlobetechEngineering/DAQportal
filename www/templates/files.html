@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+{% block title %}Log downloads{% endblock %}
+{% block content %}
+<p>Try to refrain from downloading the 500 MB archives&hellip; you’ll (intermittently) freeze the server and logger :(</p>
+<table>
+	<thead>
+		<tr>
+			<th>Date</th>
+			<th>File</th>
+			<th>Size</th>
+			<th>Action</th>
+		</tr>
+	</thead>
+	{% if files %}
+	<tbody>
+	{% for file in files %}
+	<tr>
+		<td>{{ file.date }}</td>
+		<td>{{ file.title }}</td>
+		<td>{{ file.size }}</td>
+		<td><a href="{{ url_for('download_log', name=file.link) }}" data-date="{{ file.date }}" class="download">Download</a></td>
+	</tr>
+	{% endfor %}
+	</tbody>
+	{% endif %}
+</table>
+
+<script>
+for(let link of document.getElementsByClassName('download')) {
+	if(link.href.endsWith('.bin'))
+		link.addEventListener('click', evDownloadClicked);
+}
+
+function evDownloadClicked(e) {
+	e.preventDefault();
+	
+	if( this.hasAttribute('disabled') )
+		return;
+	
+	const logWorker = new Worker("{{ url_for('static', filename='logworker.js') }}");
+	logWorker.onmessage = evWorkerMessage;
+	// logWorker.onerror = evWorkerError;
+	logWorker.onmessageerror = console.error;
+	
+	logWorker.sourcelink = this;
+	
+	this.setAttribute('disabled','');
+	this.textContent = 'Downloading...';
+	
+	logWorker.postMessage(this.href);
+}
+
+function evWorkerMessage(e) {
+	console.log(e);
+	
+	if('status' in e.data) {
+		if(e.data.status == 'downloaded') {
+			this.sourcelink.textContent = 'Processing...';
+		}
+		else if(e.data.status == 'finished') {
+			this.sourcelink.removeAttribute('disabled');
+			this.sourcelink.textContent = 'Download';
+			
+			const path = this.sourcelink.href.split('/');
+			const filetime = path[path.length-1].split('.')[0];
+			const filename = this.sourcelink.dataset.date + '_' + filetime + '.csv';
+			
+			const link = document.createElement('a');
+			
+			link.setAttribute('href', e.data.value);
+			link.setAttribute('download', filename);
+			link.click();
+			
+			URL.revokeObjectURL(e.data);
+		}
+		else if(e.data.status == 'error') {
+			this.sourcelink.removeAttribute('disabled');
+			this.sourcelink.textContent = 'Download';
+			
+			// give us a pretty stack trace
+			throw e.data.value;
+		}
+	}
+}
+
+</script>
+{% endblock %}

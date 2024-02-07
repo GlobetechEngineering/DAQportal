@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block title %}Format configurations{% endblock %}
+{% block content %}
+<table>
+	<thead>
+		<tr>
+			<th>ID</th>
+			<th>Modification time</th>
+			<th>Action</th>
+		</tr>
+	</thead>
+	{% if configs %}
+	<tbody>
+	{% for config in configs %}
+	<tr>
+		<td>{{ config.id }}</td>
+		<td>{{ config.mtime }}</td>
+		<td>
+			<a href="{{ url_for('config_form', id=config.id) }}">View / Edit</a>
+			&emsp;
+			<a href="{{ url_for('download_config', name=config.file) }}">Download</a>
+		</td>
+	</tr>
+	{% endfor %}
+	</tbody>
+	{% endif %}
+</table>
+
+<a href="{{ url_for('config_form', id=next) }}">New config</a>
+
+{% endblock %}

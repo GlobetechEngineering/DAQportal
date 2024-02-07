@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block title %}Profinet DAQ{% endblock %}
+{% block content %}
+
+<p>
+<ul>
+	<li><a href="{{ url_for('list_files') }}">View logs</a>
+	<li><a href="{{ url_for('config_list') }}">Manage configuration</a>
+	<li><a href="{{ url_for('status') }}">Check status</a>
+</ul>
+</p>
+{% endblock %}

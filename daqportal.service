@@ -1,0 +1,17 @@
+[Unit]
+Description=DAQ HTTP portal
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+
+WorkingDirectory=/opt/pnlogger/bin
+ExecStart=/opt/pnlogger/bin/.venv/bin/gunicorn daqhub:app
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
